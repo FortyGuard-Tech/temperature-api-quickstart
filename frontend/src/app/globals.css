@@ -1,0 +1,63 @@
+@import 'mapbox-gl/dist/mapbox-gl.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
+body {
+  background-color: #030712;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+/* Deck.gl Tooltip Customization */
+.deck-tooltip {
+  font-family: inherit;
+  font-size: 12px;
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.8;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}

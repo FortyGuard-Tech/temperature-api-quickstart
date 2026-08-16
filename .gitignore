@@ -246,3 +246,14 @@ data/street_view/*
 !data/env_params/
 data/env_params/*
 !data/env_params/env_params_parcel_*.json
+
+# Node & Next.js
+node_modules/
+**/node_modules/
+.next/
+out/
+build/
+.env*.local
+*.tsbuildinfo
+
+

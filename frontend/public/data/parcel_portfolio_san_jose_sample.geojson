@@ -1,0 +1,267 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-259-27-014",
+        "name": "Diridon Gateway",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 3.33,
+        "zoning": "DC — Downtown Commercial",
+        "proposed_use": "Mixed-use office / residential",
+        "proposed_gsf": 420000,
+        "stories": 12
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.90079081582293,
+              37.3300500845841
+            ],
+            [
+              -121.89920918417708,
+              37.3300500845841
+            ],
+            [
+              -121.89920918417708,
+              37.330657470395565
+            ],
+            [
+              -121.8995650512974,
+              37.3309499154159
+            ],
+            [
+              -121.90079081582293,
+              37.3309499154159
+            ],
+            [
+              -121.90079081582293,
+              37.3300500845841
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-264-11-032",
+        "name": "SoFA District Infill",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 1.76,
+        "zoning": "DC — Downtown Commercial",
+        "proposed_use": "Residential over ground-floor retail",
+        "proposed_gsf": 185000,
+        "stories": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.88653662145136,
+              37.32966256343807
+            ],
+            [
+              -121.88546337854864,
+              37.32966256343807
+            ],
+            [
+              -121.88546337854864,
+              37.330337436561926
+            ],
+            [
+              -121.88653662145136,
+              37.330337436561926
+            ],
+            [
+              -121.88653662145136,
+              37.32966256343807
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-249-40-008",
+        "name": "Japantown Commons",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 2.65,
+        "zoning": "MUN — Mixed Use Neighborhood",
+        "proposed_use": "Affordable residential",
+        "proposed_gsf": 240000,
+        "stories": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.89467800912556,
+              37.348505093042505
+            ],
+            [
+              -121.89376269680606,
+              37.348505093042505
+            ],
+            [
+              -121.89376269680606,
+              37.34907423604362
+            ],
+            [
+              -121.89332199087445,
+              37.34907423604362
+            ],
+            [
+              -121.89332199087445,
+              37.34949490695749
+            ],
+            [
+              -121.89467800912556,
+              37.34949490695749
+            ],
+            [
+              -121.89467800912556,
+              37.348505093042505
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-467-22-105",
+        "name": "SJSU South Campus Edge",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 2.73,
+        "zoning": "DC — Downtown Commercial",
+        "proposed_use": "Student housing",
+        "proposed_gsf": 310000,
+        "stories": 10
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.87973436319149,
+              37.33361757189649
+            ],
+            [
+              -121.87826563680852,
+              37.33361757189649
+            ],
+            [
+              -121.87826563680852,
+              37.33438242810352
+            ],
+            [
+              -121.87973436319149,
+              37.33438242810352
+            ],
+            [
+              -121.87973436319149,
+              37.33361757189649
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-259-33-041",
+        "name": "Guadalupe River North",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 4.57,
+        "zoning": "IP — Industrial Park",
+        "proposed_use": "Light industrial / flex",
+        "proposed_gsf": 150000,
+        "stories": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.9059039278954,
+              37.341460101500914
+            ],
+            [
+              -121.90409607210461,
+              37.341460101500914
+            ],
+            [
+              -121.90409607210461,
+              37.34218896447468
+            ],
+            [
+              -121.90450283965752,
+              37.34253989849908
+            ],
+            [
+              -121.9059039278954,
+              37.34253989849908
+            ],
+            [
+              -121.9059039278954,
+              37.341460101500914
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "parcel_id": "APN-472-09-017",
+        "name": "Spartan Keyes",
+        "city": "San Jose",
+        "state": "CA",
+        "lot_acres": 2.34,
+        "zoning": "RM — Residential Medium",
+        "proposed_use": "Townhome development",
+        "proposed_gsf": 98000,
+        "stories": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -121.88359301321476,
+              37.317595076125684
+            ],
+            [
+              -121.8240698678523,
+              37.317595076125684
+            ],
+            [
+              -121.88240698678523,
+              37.31840492387431
+            ],
+            [
+              -121.88359301321476,
+              37.31840492387431
+            ],
+            [
+              -121.88359301321476,
+              37.317595076125684
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

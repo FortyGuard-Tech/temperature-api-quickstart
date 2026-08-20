@@ -1,0 +1,46 @@
+HEAT RISK DATA QUALITY REPORT
+==================================================
+
+Original shape: (816, 25)
+Date range: 2026-07-20 00:00:00-05:00 -> 2026-07-26 23:00:00-05:00
+
+Rows per site:
+site_id
+site_1    144
+site_2    168
+site_3    168
+site_4    168
+site_5    168
+
+Missing values:
+site_id                         0
+timestamp                       0
+latitude                        0
+longitude                       0
+elevation                       0
+heat_index_celsius              0
+apparent_temperature_celsius    0
+relative_humidity_percent       0
+precipitation_mm                0
+cloud_cover_octas               0
+wet_bulb_temperature_celsius    0
+air_quality:idx                 0
+air_quality_pm2p5:idx           0
+air_quality_pm10:idx            0
+air_quality_no2:idx             0
+aqi_us_co                       0
+air_quality_o3:idx              0
+air_quality_so2:idx             0
+methane_ppb                     0
+co2_ppm                         0
+hour                            0
+day_of_week                     0
+day                             0
+month                           0
+heat_level                      0
+
+Heat level distribution:
+heat_level
+HIGH      312
+LOW       297
+MEDIUM    207

@@ -246,3 +246,9 @@ data/street_view/*
 !data/env_params/
 data/env_params/*
 !data/env_params/env_params_parcel_*.json
+
+# Per-rider heat layers fetched at runtime by safety_rider/heat_layer.py.
+# These are large (3-4 MB each), location-specific, and regenerate on demand.
+data/heatmaps/heatmap_rider_*.json
+data/env_params/env_params_rider_*.json
+data/heatmaps/_partial_day_quarantine/

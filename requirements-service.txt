@@ -1,0 +1,9 @@
+# Runtime dependencies for the Safety Rider WhatsApp service (safety_rider/).
+# The notebook/SDK dependencies stay in requirements.txt — install both if you
+# want to run the notebooks too.
+
+-r requirements.txt
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+httpx>=0.27.0

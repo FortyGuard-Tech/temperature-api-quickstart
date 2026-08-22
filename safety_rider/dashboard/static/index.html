@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Safety Rider — Live Heat Operations</title>
+<link rel="stylesheet" href="/dashboard/static/vendor/leaflet.css" />
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --line: #272e38;
+    --text: #e6edf3; --muted: #8b949e;
+    --safe: #2ea043; --warning: #d29922; --danger: #f85149; --unknown: #6e7681;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100vh; display: flex; background: var(--bg); color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  #map { flex: 1; height: 100vh; background: #0b0f14; }
+
+  aside {
+    width: 400px; flex-shrink: 0; height: 100vh; display: flex; flex-direction: column;
+    background: var(--panel); border-left: 1px solid var(--line);
+  }
+  header { padding: 16px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0; font-size: 16px; letter-spacing: .2px; }
+  header p  { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+  .status-row { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  .chip {
+    flex: 1; text-align: center; padding: 6px 4px; border-radius: 6px;
+    background: #0d1117; border: 1px solid var(--line); font-size: 12px;
+  }
+  .chip b { display: block; font-size: 18px; line-height: 1.2; }
+  .chip.safe b { color: var(--safe); } .chip.warning b { color: var(--warning); }
+  .chip.danger b { color: var(--danger); }
+
+  .controls { padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+  button {
+    flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--line);
+    background: #21262d; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  button:hover:not(:disabled) { background: #30363d; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.primary { background: #7d2018; border-color: #a13226; }
+  button.primary:hover:not(:disabled) { background: #a13226; }
+
+  #feed { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .event {
+    padding: 9px 16px; border-left: 3px solid var(--unknown);
+    border-bottom: 1px solid #1c222b; font-size: 13px;
+  }
+  .event.safe { border-left-color: var(--safe); }
+  .event.warning { border-left-color: var(--warning); }
+  .event.danger { border-left-color: var(--danger); background: rgba(248,81,73,.07); }
+  .event time { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .empty { padding: 24px 16px; color: var(--muted); font-size: 13px; text-align: center; }
+
+  footer { padding: 8px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+  #conn::before { content: "●"; margin-right: 5px; color: var(--danger); }
+  #conn.live::before { color: var(--safe); }
+
+  /* Rider markers. Danger blinks — motion is what pulls the eye to the one
+     rider who needs help on a map with dozens of dots. */
+  .rider { border-radius: 50%; border: 2px solid rgba(255,255,255,.85); }
+  .rider.safe    { background: var(--safe); }
+  .rider.warning { background: var(--warning); }
+  .rider.unknown { background: var(--unknown); }
+  .rider.danger  { background: var(--danger); animation: blink 1s ease-in-out infinite; }
+  @keyframes blink {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(248,81,73,.75); }
+    50%     { opacity: .55; box-shadow: 0 0 0 12px rgba(248,81,73,0); }
+  }
+  /* Respect users who get sick from motion; colour still distinguishes it. */
+  @media (prefers-reduced-motion: reduce) { .rider.danger { animation: none; } }
+
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #161b22; color: var(--text); }
+  .leaflet-popup-content { margin: 10px 12px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <aside>
+    <header>
+      <h1>🌡️ Safety Rider — Live Operations</h1>
+      <p id="subtitle">Connecting…</p>
+    </header>
+
+    <div class="status-row">
+      <div class="chip safe">   <b id="n-safe">0</b>Safe</div>
+      <div class="chip warning"><b id="n-warning">0</b>Warning</div>
+      <div class="chip danger"> <b id="n-danger">0</b>Danger</div>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="btn-spike">⚡ Simulate Heat Spike</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+
+    <div id="feed"><div class="empty">No events yet. Send a location pin, or hit Simulate Heat Spike.</div></div>
+
+    <footer><span id="conn">disconnected</span> · <span id="mode">—</span></footer>
+  </aside>
+
+<script src="/dashboard/static/vendor/leaflet.js"></script>
+<script>
+/* ────────────────────────────────────────────────────────────────────────────
+   Safety Rider dashboard.
+   Three jobs: draw riders on a map, stream the alert feed, fire the demo spike.
+   No framework and no build step — it is served straight off FastAPI.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+const API = {
+  state:    "/api/dashboard/state",
+  stream:   "/api/dashboard/stream",
+  simulate: "/api/dashboard/simulate",
+  reset:    "/api/dashboard/reset",
+};
+
+const markers = {};        // rider_id -> Leaflet marker
+let map, devTools = true;
+
+/* ── map ─────────────────────────────────────────────────────────────────── */
+
+function initMap(center) {
+  map = L.map("map", { zoomControl: true }).setView([center.lat, center.lon], 13);
+  // CARTO dark tiles: the only external request this page makes. If it is
+  // blocked the map stays dark grey and every marker still works.
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: "abcd", maxZoom: 19,
+  }).addTo(map);
+}
+
+function riderIcon(status) {
+  const size = status === "danger" ? 20 : 14;
+  return L.divIcon({
+    className: "",
+    html: `<div class="rider ${status}" style="width:${size}px;height:${size}px"></div>`,
+    iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+  });
+}
+
+function popupFor(r) {
+  const temp = r.temperature_c == null ? "—" : `${r.temperature_c.toFixed(1)} °C`;
+  const hrs  = r.hours_above_threshold == null ? "" :
+               `<br>~${r.hours_above_threshold.toFixed(0)} h/day above the high-heat line`;
+  const src  = r.source === "live" ? "measured" : r.source.toUpperCase();
+  return `<b>${r.rider_id}</b>${r.label ? " · " + r.label : ""}<br>
+          Status: <b>${r.status.toUpperCase()}</b><br>Peak: ${temp}${hrs}
+          <br><small>${src}${r.observed_date ? " · " + r.observed_date : ""}</small>`;
+}
+
+function upsertRider(r) {
+  const pos = [r.latitude, r.longitude];
+  if (markers[r.rider_id]) {
+    markers[r.rider_id].setLatLng(pos).setIcon(riderIcon(r.status)).setPopupContent(popupFor(r));
+  } else {
+    markers[r.rider_id] = L.marker(pos, { icon: riderIcon(r.status) })
+      .addTo(map).bindPopup(popupFor(r));
+  }
+  markers[r.rider_id]._status = r.status;
+  recount();
+}
+
+function recount() {
+  const tally = { safe: 0, warning: 0, danger: 0 };
+  Object.values(markers).forEach(m => { if (tally[m._status] !== undefined) tally[m._status]++; });
+  document.getElementById("n-safe").textContent    = tally.safe;
+  document.getElementById("n-warning").textContent = tally.warning;
+  document.getElementById("n-danger").textContent  = tally.danger;
+}
+
+/* ── feed ────────────────────────────────────────────────────────────────── */
+
+const feed = document.getElementById("feed");
+
+function addEvent(e, { prepend = true } = {}) {
+  feed.querySelector(".empty")?.remove();
+  const el = document.createElement("div");
+  el.className = `event ${e.status || "info"}`;
+  const when = e.at ? new Date(e.at) : new Date();
+  el.innerHTML = `<time>${when.toLocaleTimeString()}</time>${escapeHtml(e.text)}`;
+  prepend ? feed.prepend(el) : feed.append(el);
+  while (feed.children.length > 200) feed.lastChild.remove();
+}
+
+// Feed text contains rider-supplied values; never inject it as markup.
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* ── live stream ─────────────────────────────────────────────────────────── */
+
+function connect() {
+  const src = new EventSource(API.stream);
+  const conn = document.getElementById("conn");
+
+  src.onopen = () => { conn.className = "live"; conn.textContent = "live"; };
+  src.onerror = () => { conn.className = ""; conn.textContent = "reconnecting…"; };
+  src.onmessage = ev => {
+    const e = JSON.parse(ev.data);
+    addEvent(e);
+    if (e.latitude != null && e.rider_id) {
+      upsertRider({
+        rider_id: e.rider_id, latitude: e.latitude, longitude: e.longitude,
+        status: e.status, temperature_c: e.temperature_c,
+        hours_above_threshold: null, label: null, source: "unknown", observed_date: null,
+      });
+      if (e.status === "danger") map.panTo([e.latitude, e.longitude]);
+    }
+  };
+  // EventSource retries on its own; no manual reconnect loop needed.
+}
+
+/* ── controls ────────────────────────────────────────────────────────────── */
+
+document.getElementById("btn-spike").onclick = async (ev) => {
+  const btn = ev.currentTarget;
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const res = await fetch(API.simulate, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ temperature_c: 41.5, rider_label: "Demo rider" }),
+    });
+    const data = await res.json();
+    if (data.error) addEvent({ text: `Simulate: ${data.error}`, status: "unknown" });
+    else addEvent({ text: `Simulated ${data.temperature_c} °C — WhatsApp ${data.whatsapp_sent ? "sent ✅" : "not sent"}`, status: data.status });
+  } catch (err) {
+    addEvent({ text: `Simulate failed: ${err}`, status: "unknown" });
+  } finally {
+    btn.disabled = false; btn.textContent = "⚡ Simulate Heat Spike";
+  }
+};
+
+document.getElementById("btn-reset").onclick = async () => {
+  await fetch(API.reset, { method: "POST" });
+  Object.values(markers).forEach(m => map.removeLayer(m));
+  for (const k in markers) delete markers[k];
+  feed.innerHTML = '<div class="empty">Reset. Waiting for events…</div>';
+  recount();
+};
+
+/* ── boot ────────────────────────────────────────────────────────────────── */
+
+(async function start() {
+  const s = await (await fetch(API.state)).json();
+  devTools = s.dev_tools;
+  initMap(s.center);
+  s.riders.forEach(upsertRider);
+  s.events.forEach(e => addEvent(e, { prepend: false }));
+
+  document.getElementById("subtitle").textContent =
+    `${s.riders.length} rider(s) tracked · map centred on ${s.center.lat.toFixed(3)}, ${s.center.lon.toFixed(3)}`;
+  document.getElementById("mode").textContent =
+    (s.mock_mode ? "SIMULATED temperatures" : "live FortyGuard data") +
+    (s.demo_number_configured ? "" : " · no demo number set");
+
+  const spike = document.getElementById("btn-spike");
+  if (!devTools) { spike.disabled = true; spike.textContent = "Dev tools disabled"; }
+
+  connect();
+})();
+</script>
+</body>
+</html>

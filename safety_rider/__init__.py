@@ -16,6 +16,15 @@ Layers:
 
 The FortyGuard API wrapper in ``fortyguard/`` is left untouched — this package
 consumes it, never modifies it.
+
+----
+
+Copyright (c) 2026 Naila Yaqoob. All rights reserved.
+
+This package is original work and is **not** covered by the MIT licence in
+``LICENSE``, which applies to the upstream FortyGuard template this project is
+built on. FortyGuard, Inc. holds a non-exclusive licence to showcase it. See
+``NOTICE.md`` at the repository root for the full terms.
 """
 
 __all__ = [
